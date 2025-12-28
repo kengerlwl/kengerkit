@@ -10,6 +10,16 @@ Usage:
     # 配置管理
     value = client.config.get("my_key")
     client.config.set("key", "value")
+
+    # 服务注册
+    from kengerkit import ServiceRegistry
+
+    registry = ServiceRegistry(
+        client=client,
+        namespace="my-service",
+        port=5000,
+    )
+    registry.start()
 """
 
 from .client import KengerClient
@@ -20,10 +30,12 @@ from .exceptions import (
     ValidationError,
     ServerError,
 )
+from .registry import ServiceRegistry
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = [
     "KengerClient",
+    "ServiceRegistry",
     "KengerKitError",
     "AuthenticationError",
     "NotFoundError",
