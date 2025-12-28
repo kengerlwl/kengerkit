@@ -192,12 +192,18 @@ class ServiceRegistry:
                 "host": self.host,
                 "port": self.port,
             })
+            self._consecutive_failures = 0
             return True
         except Exception as e:
-            print(f"[ServiceRegistry] 心跳失败: {e}")
-            # 心跳失败时尝试重新注册
-            if not self._registered:
-                self.register()
+            self._consecutive_failures = getattr(self, '_consecutive_failures', 0) + 1
+            print(f"[ServiceRegistry] 心跳失败 (连续第{self._consecutive_failures}次): {e}")
+
+            # 连续失败3次后尝试重新注册（可能是注册中心重启导致数据丢失）
+            if self._consecutive_failures >= 3:
+                print(f"[ServiceRegistry] 连续心跳失败，尝试重新注册...")
+                if self.register():
+                    print(f"[ServiceRegistry] 重新注册成功")
+                    self._consecutive_failures = 0
             return False
 
     def _heartbeat_loop(self):
